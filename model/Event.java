@@ -11,6 +11,8 @@ class Event {
         this.priority = priority;
     }
 
+    public String getEventId() { return eventId; }
+    public String getName() { return name; }
     public TimeSlot getSlot() { return slot; }
     public int getPriority() { return priority; }
 }

@@ -8,7 +8,14 @@ public class SERASApp {
         Scanner scanner = new Scanner(System.in);
         EventService eventService = new EventService();
         ResourceService resourceService = new ResourceService();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        DateTimeFormatter formatter = new java.time.format.DateTimeFormatterBuilder()
+                .appendPattern("yyyy-M-d")
+                .optionalStart()
+                .appendPattern(" H:m")
+                .optionalEnd()
+                .parseDefaulting(java.time.temporal.ChronoField.HOUR_OF_DAY, 0)
+                .parseDefaulting(java.time.temporal.ChronoField.MINUTE_OF_HOUR, 0)
+                .toFormatter();
 
         System.out.println("Welcome to SERAS (Smart Event Resource Allocation System)");
 
@@ -57,16 +64,37 @@ public class SERASApp {
                             }
                         }
 
-                        System.out.print("Enter Start Time (yyyy-MM-dd HH:mm): ");
-                        String startStr = scanner.nextLine();
-                        LocalDateTime start = LocalDateTime.parse(startStr, formatter);
+                        LocalDateTime start = null;
+                        while (start == null) {
+                            System.out.print("Enter Start Time (e.g. 2026-12-12 or 2026-12-12 14:30): ");
+                            try {
+                                start = LocalDateTime.parse(scanner.nextLine(), formatter);
+                            } catch (Exception e) {
+                                System.out.println("Invalid format. Please use yyyy-MM-dd or yyyy-MM-dd HH:mm (e.g. 2026-12-12).");
+                            }
+                        }
                         
-                        System.out.print("Enter End Time (yyyy-MM-dd HH:mm): ");
-                        String endStr = scanner.nextLine();
-                        LocalDateTime end = LocalDateTime.parse(endStr, formatter);
+                        LocalDateTime end = null;
+                        while (end == null) {
+                            System.out.print("Enter End Time (e.g. 2026-12-12 or 2026-12-12 15:30): ");
+                            try {
+                                end = LocalDateTime.parse(scanner.nextLine(), formatter);
+                            } catch (Exception e) {
+                                System.out.println("Invalid format. Please use yyyy-MM-dd or yyyy-MM-dd HH:mm (e.g. 2026-12-12).");
+                            }
+                        }
                         
-                        System.out.print("Enter Priority (1-10): ");
-                        int priority = Integer.parseInt(scanner.nextLine());
+                        int priority = 0;
+                        boolean validPriority = false;
+                        while (!validPriority) {
+                            System.out.print("Enter Priority (1-10): ");
+                            try {
+                                priority = Integer.parseInt(scanner.nextLine());
+                                validPriority = true;
+                            } catch (Exception e) {
+                                System.out.println("Invalid input. Please enter a valid number.");
+                            }
+                        }
 
                         TimeSlot slot = new TimeSlot(start, end);
                         Event event = new Event(eventId, eventName, slot, priority);
